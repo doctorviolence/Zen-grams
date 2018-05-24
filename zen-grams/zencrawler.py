@@ -2,7 +2,7 @@ import logging
 import requests
 import bs4
 import time
-import mysql.connector as mysqldb
+import jsonpickle
 from article import Article
 
 logging.basicConfig(filename='crawler.log', level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')
@@ -39,7 +39,7 @@ def buildArticleDictionary():
 
     logging.debug("Building dictionary...")
     urls = scrapeArticleUrlsFromPage()
-    articles = {}
+    article_dictionary = {}
 
     try:
 
@@ -58,33 +58,58 @@ def buildArticleDictionary():
             date_body = soup.find("div", class_="navigation")
             date_published = date_body.find('p').text
 
-            articles[url] = Article(url, title, date_published, content)
+            article_dictionary[url] = Article(url, title, date_published, content)
+
             time.sleep(3)
 
-        return articles
+        logging.debug("Article dictionary complete...")
+        # writeArticleDictionaryToFile(article_dictionary)
 
     except Exception as exc:
         logging.error(exc)
 
-    def saveArticleDictionary(self):
-        """
-        Saves article dictionary to DB
-        """
-        config = {'user': 'root', 'password': 'eIhuJk-dq2Jd', 'host': '127.0.0.1', 'database': 'zen_grams',
-                  'raise_on_warnings': True, 'use_pure': False}
-        try:
-            conn = mysqldb.connect(**self.config)
-            cursor = conn.cursor()
-        except Exception as exc:
-            logging.error(exc)
-        finally:
-            cursor.close()
-            conn.close()
 
-        raise NotImplementedError
+def writeArticlesToFile(article_dictionary):
+    """
+    Writes article to a JSON file
+    """
+    try:
+        logging.debug("Writing article to JSON file...")
+        article_json = jsonpickle.encode({url: article.to_json() for url, article in article_dictionary.items()})
 
-    def saveNgrams(self):
-        """
-        Saves article N-grams to a JSON file
-        """
-        raise NotImplementedError
+        with open('articles.json', "w") as fp:
+            fp.write(article_json)
+            fp.close()
+
+        return True
+    except Exception as exc:
+        logging.error(exc)
+        return False
+
+
+"""
+def saveArticleDictionary(articles):
+    sql_articles = 'INSERT IGNORE INTO articles(article_url, date_published, article_title) VALUES(%s, %s, %s)'
+
+    logging.debug("Connecting to DB...")
+    conn = mysqldb.connect(host="127.0.0.1", user="root", passwd="pass", db='zen_grams', )
+    cursor = conn.cursor()
+
+    try:
+        logging.debug("Inserting articles to DB...")
+
+        for key, value in articles.items():
+            cursor.execute(sql_articles, (key, value.date_published, value.title))
+            conn.commit()
+
+        logging.debug("Articles saved in DB...")
+
+        return True
+    except Exception as exc:
+        logging.error(exc)
+
+        return False
+    finally:
+        cursor.close()
+        conn.close()
+"""
