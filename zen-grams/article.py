@@ -1,7 +1,6 @@
 import logging
 import re
 import datetime
-import json
 from calendar import month_name
 
 logging.basicConfig(filename='article.log', level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')
@@ -34,7 +33,4 @@ class Article(object):
         raise NotImplementedError
 
     def to_json(self):
-        return json.dumps(self.__dict__)
-
-    def __repr__(self):
-        return '{0} {1} {2}'.format(self.url, self.title, self.date_published)
+        return self.__dict__

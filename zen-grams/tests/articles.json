@@ -1,0 +1,14 @@
+{
+  "http://www.test.com": {
+    "content": "Blah blah blah",
+    "date_published": "2018-05-15",
+    "title": "Test",
+    "url": "http://www.test.com"
+  },
+  "http://www.test2.com": {
+    "content": "Sample content",
+    "date_published": "2012-06-01",
+    "title": "Test2",
+    "url": "http://www.test2.com"
+  }
+}
